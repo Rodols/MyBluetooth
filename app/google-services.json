@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1038541612001",
+    "firebase_url": "https://myregister-98b13.firebaseio.com",
+    "project_id": "myregister-98b13",
+    "storage_bucket": "myregister-98b13.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038541612001:android:13bf9a88e4087b248ea8a0",
+        "android_client_info": {
+          "package_name": "com.example.mybluetoothapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1038541612001-78ckngsu6pt2uiu7e9tbsgikv06ko4oe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD31Ell-j_jCZvoyUXEnoS72iqBnL332Zs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038541612001-78ckngsu6pt2uiu7e9tbsgikv06ko4oe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

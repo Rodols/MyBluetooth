@@ -1,6 +1,5 @@
 package com.example.mybluetoothapp
 
-import android.R.attr.x
 import android.app.Activity
 import android.app.ProgressDialog
 import android.bluetooth.BluetoothAdapter
@@ -9,33 +8,47 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.android.synthetic.main.activity_home.*
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
-import kotlin.collections.ArrayList
 
-class MainActivity : AppCompatActivity() {
-    lateinit var bluetoothAdapter: BluetoothAdapter
-    private val REQUEST_ENABLE_BT = 100
+enum class ProviderType{
+    BASIC
+}
 
-
+class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_home)
 
-        setup()
+        //Setup
+
+        val bundle = intent.extras
+        val email = bundle?.getString("email")
+        val provider = bundle?.getString("provider")
+        setup(email?:"",provider?:"")
+
+        //Guardar Datos
+        val prefs = getSharedPreferences(getString(R.string.prefs_file),Context.MODE_PRIVATE).edit()
+        prefs.putString("email", email)
+        prefs.putString("provider",provider)
+        prefs.apply()
 
     }
 
-    private fun setup() {
+    private fun setup(email:String, provider:String){
+        title = "Inicio"
+        emailTextView.text = email
+        providerTextView.text = provider
 
         //init bluetoothAdapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -49,12 +62,20 @@ class MainActivity : AppCompatActivity() {
             enabledBluetooth()
         }
 
-        getPairedDevicesButton.setOnClickListener {
-            pairedDevices()
+        logOutButton.setOnClickListener {
+
+            //Borrar datos
+            val prefs = getSharedPreferences(getString(R.string.prefs_file),Context.MODE_PRIVATE).edit()
+            prefs.clear()
+            prefs.apply()
+
+            FirebaseAuth.getInstance().signOut()
+            onBackPressed()
+
         }
 
-        sendButton.setOnClickListener {
-            sendCommand("1")
+        getPairedDevices.setOnClickListener {
+            pairedDevices()
         }
 
         bluetoothIn = object : Handler() {
@@ -65,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                     val endOfLineIndex = DataStringIN.indexOf("#")
                     if (endOfLineIndex > 0) {
                         val dataInPrint = DataStringIN.substring(0, endOfLineIndex)
-                        reciveTextView.text=dataInPrint
+                        recibeTextView.text=dataInPrint
                         Toast.makeText(baseContext, "" + dataInPrint, Toast.LENGTH_SHORT).show()
                         DataStringIN.delete(0, DataStringIN.length)
                     }
@@ -73,6 +94,31 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    /*private fun sendCommand(input: String) {
+        if(m_bluetoothSocket != null){
+            try {
+                m_bluetoothSocket!!.outputStream.write(input.toByteArray())
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
+        }
+    }*/
+
+    companion object{
+        var m_myUUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+        var m_bluetoothSocket: BluetoothSocket? = null
+        lateinit var  m_progress: ProgressDialog
+        lateinit var m_bluetoothAdapter : BluetoothAdapter
+        var m_isConnected: Boolean = false
+        lateinit var m_address: String
+        lateinit var bluetoothIn: Handler
+        val handlerState = 0;
+        private val DataStringIN = StringBuilder()
+        lateinit var MyConexionBT: ConnectedThread
+        lateinit var bluetoothAdapter: BluetoothAdapter
+        private val REQUEST_ENABLE_BT = 100
     }
 
     private fun enabledBluetooth() {
@@ -91,19 +137,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "El usuario rechazo activar el bluetooth!", Toast.LENGTH_SHORT)
                 .show()
         }
-    }
-
-    companion object{
-        var m_myUUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-        var m_bluetoothSocket: BluetoothSocket? = null
-        lateinit var  m_progress: ProgressDialog
-        lateinit var m_bluetoothAdapter : BluetoothAdapter
-        var m_isConnected: Boolean = false
-        lateinit var m_address: String
-        lateinit var bluetoothIn: Handler
-        val handlerState = 0;
-        private val DataStringIN = StringBuilder()
-        lateinit var MyConexionBT: ConnectedThread
     }
 
     private fun pairedDevices() {
@@ -172,16 +205,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendCommand(input: String) {
-        if(m_bluetoothSocket != null){
-            try {
-                m_bluetoothSocket!!.outputStream.write(input.toByteArray())
-            }catch (e: Exception){
-                e.printStackTrace()
-            }
-        }
-    }
-
     //create new class for connect thread
     class ConnectedThread(socket: BluetoothSocket) : Thread() {
         private val mmInStream: InputStream?
@@ -214,4 +237,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    }
+
+
+
+}

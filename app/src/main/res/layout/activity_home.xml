@@ -4,55 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".HomeActivity">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="48dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/reciveTextView"
+            android:id="@+id/emailTextView"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:text="Recive" />
+            android:text="Email" />
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="8dp" />
-
-        <Button
-            android:id="@+id/sendButton"
+        <TextView
+            android:id="@+id/providerTextView"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:text="send(1)" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="8dp" />
+            android:text="Provider" />
 
         <Button
-            android:id="@+id/getPairedDevicesButton"
+            android:id="@+id/logOutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="get paired devices" />
+            android:text="cerrar session" />
 
-        <Space
+        <Button
+            android:id="@+id/getPairedDevices"
             android:layout_width="match_parent"
-            android:layout_height="8dp" />
+            android:layout_height="wrap_content"
+            android:text="Buscar dispositivo" />
+
+        <TextView
+            android:id="@+id/recibeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
 
         <ListView
             android:id="@+id/pairedDevicesListView"
             android:layout_width="match_parent"
-            android:layout_height="339dp">
-
-        </ListView>
+            android:layout_height="match_parent" />
 
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

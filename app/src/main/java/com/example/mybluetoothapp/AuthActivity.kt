@@ -1,17 +1,20 @@
 package com.example.mybluetoothapp
 
-import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_auth.*
 
 
 class AuthActivity : AppCompatActivity() {
+
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,13 +30,14 @@ class AuthActivity : AppCompatActivity() {
 
         //Metodo para crear usuario
         signUpButton.setOnClickListener {
-            if (emailEditTextText.text.isNotEmpty() && passwordEditTextText.text.isNotEmpty()) {
+            if (emailEditText.text.isNotEmpty() && passwordEditText.text.isNotEmpty() && nameEditText.text.isNotEmpty() && cityEditText.text.isNotEmpty()) {
                 FirebaseAuth.getInstance().createUserWithEmailAndPassword(
-                    emailEditTextText.text.toString(),
-                    passwordEditTextText.text.toString()
+                    emailEditText.text.toString(),
+                    passwordEditText.text.toString(),
                 ).addOnCompleteListener {
                     if (it.isSuccessful) {
-                        showHome(it.result?.user?.email ?: "", ProviderType.BASIC)
+                        saveUsers(it.result?.user?.email ?: "",nameEditText.text.toString(),cityEditText.text.toString())
+                        showHome(it.result?.user?.email ?: "", nameEditText.text.toString(),cityEditText.text.toString())
                     } else {
                         showAlert()
                     }
@@ -43,21 +47,19 @@ class AuthActivity : AppCompatActivity() {
 
         //Metodo para acceder
         loginButton.setOnClickListener {
-            if (emailEditTextText.text.isNotEmpty() && passwordEditTextText.text.isNotEmpty()) {
+            if (emailEditText.text.isNotEmpty() && passwordEditText.text.isNotEmpty()) {
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(
-                    emailEditTextText.text.toString(),
-                    passwordEditTextText.text.toString()
+                    emailEditText.text.toString(),
+                    passwordEditText.text.toString()
                 ).addOnCompleteListener {
                     if (it.isSuccessful) {
-                        showHome(it.result?.user?.email ?: "", ProviderType.BASIC)
+                        getUserData(it.result?.user?.email ?: "")
                     } else {
                         showAlert()
                     }
                 }
             }
         }
-
-
     }
 
     private fun showAlert() {
@@ -71,10 +73,11 @@ class AuthActivity : AppCompatActivity() {
 
 
 
-    private fun showHome(email: String, provider: ProviderType) {
+    private fun showHome(email: String, name: String, city: String) {
         val homeIntent = Intent(this, HomeActivity::class.java).apply {
             putExtra("email", email)
-            putExtra("provider", provider.name)
+            putExtra("name", name)
+            putExtra("city", city)
         }
         startActivity(homeIntent)
     }
@@ -82,11 +85,13 @@ class AuthActivity : AppCompatActivity() {
     private fun session(){
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE)
         val email = prefs.getString("email", null)
-        val provider = prefs.getString("provider", null)
+        val name = prefs.getString("name", null)
+        val city = prefs.getString("city", null)
 
-        if(email != null && provider != null){
+        if(email != null && name != null && city != null){
             authLayout.visibility = View.INVISIBLE
-            showHome(email, ProviderType.valueOf(provider))
+            //Toast.makeText(this, " sesion $email $name $city", Toast.LENGTH_SHORT).show()
+            showHome(email, name, city)
         }
     }
 
@@ -95,26 +100,20 @@ class AuthActivity : AppCompatActivity() {
         authLayout.visibility = View.VISIBLE
     }
 
+    //Guadar datos en firebase
+    private fun saveUsers(email: String, name: String, city: String){
+        db.collection("users").document(email).set(
+            hashMapOf("email" to email, "name" to name, "city" to city)
+        )
+    }
 
-/*
-    private fun setup() {
-
-
-
-
-
-
+    private fun getUserData(email: String){
+        db.collection("users").document(email).get().addOnSuccessListener {
+            showHome(email,it.get("name") as String, it.get("city") as String)
+        }
     }
 
 
 
-
-
-
-
-
-
-
-    */
 
 }
